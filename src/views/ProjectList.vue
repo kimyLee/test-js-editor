@@ -33,7 +33,7 @@
       </a-button>
       <a-button key="2"
                 class="header-btn"
-                @click.stop="createProjectPop">
+                @click.stop="runSpy">
         {{ $t(LANG.HOME_HEADER.NEW_GAME) }}
         <template #icon>
           <PlusOutlined />
@@ -226,6 +226,7 @@ import { exportFile } from '@/lib/project/common'
 import { bleState } from '@/api/joyo-ble/web-ble-server'
 import { locale, LocaleEnum } from '@/locale/index'
 import LANG from '@/i18n/type'
+import spy from '@/game-test/spy'
 
 declare global {
     interface Window {
@@ -456,6 +457,10 @@ export default defineComponent({
       window.open(link)
     }
 
+    function runSpy () {
+      spy()
+    }
+
     onBeforeMount(async () => {
       // await fetchProjectList(state.tabType)
     })
@@ -465,6 +470,13 @@ export default defineComponent({
     })
 
     onMounted(async () => {
+      (window as any).handleNotifyEvent = (msg: number[]) => {
+        if (msg.length === 11 && msg[2] === 0x05 && msg[3] === 0xB1 && msg[4] === 0x04) {
+          const val = (msg[10] * 256 * 256 * 256 + msg[9] * 256 * 256 + msg[8] * 256 + msg[7])
+          window.When_JOYO_Read && window.When_JOYO_Read(val)
+        }
+      }
+
       await store.dispatch('createPresetGame')
       fetchProjectList()
       initFileEvt()
@@ -474,6 +486,7 @@ export default defineComponent({
     })
 
     return {
+      runSpy,
       router,
       refCreatePopBox,
       ...toRefs(state),

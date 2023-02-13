@@ -7,6 +7,7 @@ module.exports = {
   publicPath: '/',
   devServer: {
     https: true,
+    port: 8088,
     disableHostCheck: true,
     headers: {
       'Access-Control-Allow-Origin': '*',
