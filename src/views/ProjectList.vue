@@ -34,7 +34,15 @@
       <a-button key="2"
                 class="header-btn"
                 @click.stop="runSpy">
-        {{ $t(LANG.HOME_HEADER.NEW_GAME) }}
+        开始spy游戏
+        <template #icon>
+          <PlusOutlined />
+        </template>
+      </a-button>
+      <a-button key="2"
+                class="header-btn"
+                @click.stop="runRich">
+        开始大富翁游戏
         <template #icon>
           <PlusOutlined />
         </template>
@@ -227,6 +235,7 @@ import { bleState } from '@/api/joyo-ble/web-ble-server'
 import { locale, LocaleEnum } from '@/locale/index'
 import LANG from '@/i18n/type'
 import spy from '@/game-test/spy'
+import rich from '@/game-test/rich'
 
 declare global {
     interface Window {
@@ -460,6 +469,9 @@ export default defineComponent({
     function runSpy () {
       spy()
     }
+    function runRich () {
+      rich()
+    }
 
     onBeforeMount(async () => {
       // await fetchProjectList(state.tabType)
@@ -487,6 +499,7 @@ export default defineComponent({
 
     return {
       runSpy,
+      runRich,
       router,
       refCreatePopBox,
       ...toRefs(state),

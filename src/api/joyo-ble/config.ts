@@ -19,7 +19,7 @@ export enum CommandOrder {
   CONTROL_LIGHT = 0x36,
   CONTROL_MUSIC = 0x37,
   CONTROL_SINGLE_LIGHT = 0x38,
-  // CONTROL_LIGHT = 0x36,
+  // CONTROL_LIGHT = 0x36,jubvhg
 }
 
 export const productType = 0xA1
