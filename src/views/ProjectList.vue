@@ -31,14 +31,7 @@
         <question-circle-outlined style="fontSize: 20px;color: #aaa;vertical-align: middle;"
                                   @click.stop="visibleOfConnectTip = true" />
       </a-button>
-      <a-button key="2"
-                class="header-btn"
-                @click.stop="runSpy">
-        开始spy游戏
-        <template #icon>
-          <PlusOutlined />
-        </template>
-      </a-button>
+
       <a-button key="2"
                 class="header-btn"
                 @click.stop="runRich">
@@ -47,73 +40,74 @@
           <PlusOutlined />
         </template>
       </a-button>
-
-      <label class="head-btn"
-             for="listFileInput">
-        <delivered-procedure-outlined />
-        {{ $t(LANG.HOME_HEADER.IMPORT) }}
-        <input id="listFileInput"
-               hidden
-               type="file"
-               accept=".jo" />
-      </label>
-
-      <a-popconfirm :title="$t(LANG.HOME_HEADER.EXPORT_CONFIRM)"
-                    :ok-text="$t(LANG.COMMON.CONFIRM)"
-                    placement="bottomRight"
-                    :cancel-text="$t(LANG.COMMON.CANCEL)"
-                    @confirm="exportAllProgram">
-        <a-button class="header-btn">
-          <vertical-align-bottom-outlined class="bottom-icon download-icon" />
-          {{ $t(LANG.HOME_HEADER.EXPORT_ALL) }}
-        </a-button>
-      </a-popconfirm>
-
-      <!-- 语言选项 -->
-      <a-dropdown>
-        <template #overlay>
-          <a-menu>
-            <a-menu-item key="1"
-                         @click="setLocale(LocaleEnum.ZH)">
-              {{ $t(LANG.HOME_HEADER.ZH) }}
-            </a-menu-item>
-            <a-menu-item key="2"
-                         @click="setLocale(LocaleEnum.EN)">
-              {{ $t(LANG.HOME_HEADER.EN) }}
-            </a-menu-item>
-          </a-menu>
+      <a-button key="2"
+                class="header-btn"
+                @click.stop="runUnlocko">
+        开始Unlocko游戏
+        <template #icon>
+          <PlusOutlined />
         </template>
-        <a-button class="header-btn">
-          {{ $t(LANG.HOME_HEADER.CHOOSE_LANG) }}
-          <DownOutlined />
-        </a-button>
-      </a-dropdown>
-      <!-- 更多：文档、官网、联系我们 -->
-      <a-dropdown>
-        <template #overlay>
-          <a-menu>
-            <a-menu-item key="1"
-                         @click="newTabs('https://cubyfun.com/#/')">
-              <HomeOutlined />
-              官网
-            </a-menu-item>
-            <a-menu-item key="1"
-                         @click="newTabs('https://docs.cubyfun.com/zh/')">
-              <FileSearchOutlined />
-              文档
-            </a-menu-item>
-            <a-menu-item key="1"
-                         @click="newTabs('https://docs.cubyfun.com/zh/ContactUs.html')">
-              <MessageOutlined />
-              联系我们
-            </a-menu-item>
-          </a-menu>
+      </a-button>
+
+      <a-button key="2"
+                class="header-btn"
+                @click.stop="runOhmind">
+        开始Ohmind游戏
+        <template #icon>
+          <PlusOutlined />
         </template>
-        <a-button class="header-btn">
-          更多
-          <DownOutlined />
-        </a-button>
-      </a-dropdown>
+      </a-button>
+
+      <a-button key="2"
+                class="header-btn"
+                @click.stop="runMineSweeper">
+        开始扫雷
+        <template #icon>
+          <PlusOutlined />
+        </template>
+      </a-button>
+
+      <a-button key="2"
+                class="header-btn"
+                @click.stop="runHideAndSeek">
+        开始捉迷藏
+        <template #icon>
+          <PlusOutlined />
+        </template>
+      </a-button>
+
+      <a-button key="2"
+                class="header-btn"
+                @click.stop="runBee">
+        开始蜜蜂游戏
+        <template #icon>
+          <PlusOutlined />
+        </template>
+      </a-button>
+      <a-button key="2"
+                class="header-btn"
+                @click.stop="runMusic">
+        开始音乐
+        <template #icon>
+          <PlusOutlined />
+        </template>
+      </a-button>
+      <a-button key="2"
+                class="header-btn"
+                @click.stop="runMaze">
+        开始迷宫
+        <template #icon>
+          <PlusOutlined />
+        </template>
+      </a-button>
+      <a-button key="2"
+                class="header-btn"
+                @click.stop="runCook">
+        开始做饭
+        <template #icon>
+          <PlusOutlined />
+        </template>
+      </a-button>
     </HeaderNav>
     <div class="container">
       <div class="warning-tip">
@@ -236,6 +230,14 @@ import { locale, LocaleEnum } from '@/locale/index'
 import LANG from '@/i18n/type'
 import spy from '@/game-test/spy'
 import rich from '@/game-test/rich'
+import unlocko from '@/game-test/unlocko'
+import ohmind from '@/game-test/ohmind'
+import mineSweeper from '@/game-test/mine-sweeper'
+import hideAndSeek from '@/game-test/hide-and-seek'
+import bee from '@/game-test/bee'
+import music from '@/game-test/music'
+import maze from '@/game-test/maze'
+import cook from '@/game-test/cook'
 
 declare global {
     interface Window {
@@ -248,7 +250,7 @@ export default defineComponent({
   components: {
     // DownloadOutlined,
     // EllipsisOutlined,
-    DeliveredProcedureOutlined,
+    // DeliveredProcedureOutlined,
     VerticalAlignBottomOutlined,
     PlusOutlined,
     DeleteOutlined,
@@ -256,11 +258,11 @@ export default defineComponent({
     UpdateProcess,
     ConnectTip,
     QuestionCircleOutlined,
-    DownOutlined,
+    // DownOutlined,
     HighlightOutlined,
-    HomeOutlined,
-    MessageOutlined,
-    FileSearchOutlined,
+    // HomeOutlined,
+    // MessageOutlined,
+    // FileSearchOutlined,
   },
 
   setup () {
@@ -472,6 +474,30 @@ export default defineComponent({
     function runRich () {
       rich()
     }
+    function runUnlocko () { // 2人版unlocko
+      unlocko()
+    }
+    function runOhmind () { // 2人版unlocko
+      ohmind()
+    }
+    function runMineSweeper () { // 2人版unlocko
+      mineSweeper()
+    }
+    function runHideAndSeek () { // 王子救公主
+      hideAndSeek()
+    }
+    function runBee () { // 王子救公主
+      bee()
+    }
+    function runMusic () { // 王子救公主
+      music()
+    }
+    function runMaze () { // 王子救公主
+      maze()
+    }
+    function runCook () { // 王子救公主
+      cook()
+    }
 
     onBeforeMount(async () => {
       // await fetchProjectList(state.tabType)
@@ -500,6 +526,14 @@ export default defineComponent({
     return {
       runSpy,
       runRich,
+      runUnlocko,
+      runOhmind,
+      runMineSweeper,
+      runHideAndSeek,
+      runBee,
+      runMusic,
+      runMaze,
+      runCook,
       router,
       refCreatePopBox,
       ...toRefs(state),
