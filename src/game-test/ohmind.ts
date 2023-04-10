@@ -46,8 +46,8 @@ function _fixCodeVal (val: number) {
   if (value >= 351 && value <= 354) {
     value = 3
   }
-  if (value > 1800) {
-    value = value - 1800
+  if (value > 500000) {
+    value = value - 500000
   }
   return value
 }
@@ -170,7 +170,7 @@ export default function ohmind () {
   window.When_JOYO_Read = function (value: number) {
     const val = _fixCodeVal(value)
     console.log('识别到', val)
-    if (val === 36) { // 开始游戏
+    if (val === 300) { // 开始游戏
       startGame() // 误触？
     }
     if (val >= 0 && val <= 3 && currentInput.length < 2) { // 扫描输入

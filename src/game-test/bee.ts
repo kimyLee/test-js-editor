@@ -54,7 +54,7 @@ function playlightAnimation (color1: any[], color2: any[], final: any) {
 }
 
 function _fixCodeVal (val: number) {
-  const value = val - 1800
+  const value = val - 500000
   console.log(value, '233')
   return value
 }
@@ -127,10 +127,10 @@ export default function bee () {
 
   window.When_JOYO_Read = function (val: number) {
     const value = _fixCodeVal(val)
-    if (value === 38) { // 开始游戏
+    if (value === 700) { // 开始游戏
       startGame()
     }
-    if (value === 49) {
+    if (value === 705) {
       // 骰子
       // randomMoney()
       roll()

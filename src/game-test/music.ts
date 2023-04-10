@@ -54,7 +54,8 @@ function playlightAnimation (color1: any[], color2: any[], final: any) {
 }
 
 function _fixCodeVal (val: number) {
-  return val
+  return val - 500000
+  //  return val
 }
 // JOYO大转盘, 跑马灯然后随机停
 // function lightAnimation (finnal: number, current: number, cb: any) {
@@ -93,6 +94,9 @@ export default function music () {
     piano: [
       'p0C4', 'p0D4', 'p0E4', 'p0F4', 'p0G4', 'p0A4', 'p0B4', 'pCs4', 'pDs4', 'pEs4', 'pFs4', 'pAs4',
     ],
+    // piano: [
+    //   'p0C4', 'p0D4', 'p0E4', 'p0F4', 'p0G4', 'p0A4', 'p0B4', 'pCs4', 'pDs4', 'pEs4', 'pFs4', 'pAs4',
+    // ],
     guitar: [
       't0C4', 't0D4', 't0E4', 't0F4', 't0G4', 't0A4', 't0B4', 'tCs4', 'tDs4', 'tEs4', 'tFs4', 'tAs4',
     ],
@@ -109,7 +113,8 @@ export default function music () {
 
   function randomMusic (song: any[]) { // 随机跟弹
     const colorMap = [
-      0xff00e5, 0xff9900, 0x0085ff, 0x00ff0a, 0x8f00ff, 0xffe600, 0xff0000, 0x00ffe0,
+      // 0xff00e5, 0xff9900, 0x0085ff, 0x00ff0a, 0x8f00ff, 0xffe600, 0xff0000, 0x00ffe0,
+      0xff0000, 0xfaad14, 0xffff00, 0x00ff00, 0x0000ff, 0xd30dea, 0xeb2f96, 0xffffff,
     ]
     currentNote = 0
     currentSong = song
@@ -127,17 +132,20 @@ export default function music () {
   }
   function playMusic (key: number) { // 1-7
     const colorMap = [
-      0xff00e5, 0xff9900, 0x0085ff, 0x00ff0a, 0x8f00ff, 0xffe600, 0xff0000, 0x00ffe0,
+      // 0xff00e5, 0xff9900, 0x0085ff, 0x00ff0a, 0x8f00ff, 0xffe600, 0xff0000, 0x00ffe0,
+      0xff0000, 0xfaad14, 0xffff00, 0x00ff00, 0x0000ff, 0xd30dea, 0xeb2f96, 0xffffff,
     ]
-    console.log(currentSong, currentType, musicMap[currentType], key)
-    console.log(currentSong.length, musicMap[currentType][key - 1])
     if (currentNote < currentSong.length) {
       if (key === currentSong[currentNote]) {
         currentNote++
       }
       blePlayMusic(musicMap[currentType][key - 1])
+
       if (currentNote < currentSong.length) {
-        _setColor(colorMap[currentSong[currentNote] - 1])
+        clearAllLight()
+        setTimeout(() => {
+          _setColor(colorMap[currentSong[currentNote] - 1])
+        }, 500)
       } else {
         setTimeout(() => {
           // playing = false
@@ -153,7 +161,9 @@ export default function music () {
 
   async function purePlaySong () {
     const colorMap = [
-      0xff00e5, 0xff9900, 0x0085ff, 0x00ff0a, 0x8f00ff, 0xffe600, 0xff0000, 0x00ffe0,
+      // 0xff00e5, 0xff9900, 0x0085ff, 0x00ff0a, 0x8f00ff, 0xffe600, 0xff0000, 0x00ffe0,
+      0xff0000, 0xfaad14, 0xffff00, 0x00ff00, 0x0000ff, 0xd30dea, 0xeb2f96, 0xffffff,
+
     ]
     function play (key: number) {
       return new Promise((resolve, reject) => {
@@ -168,6 +178,7 @@ export default function music () {
       await play(currentSong[i])
     }
     playing = false
+    clearAllLight()
   }
 
   const song1 = [
@@ -179,36 +190,36 @@ export default function music () {
 
   window.When_JOYO_Read = function (val: number) {
     const value = _fixCodeVal(val)
-    if (value === 76527740) { // 开始音乐游戏
+    if (value === 400) { // 开始音乐游戏
       startGame()
     }
     // 跟弹
-    if (value === 76527739) {
+    if (value === 411 || value === 413) {
       randomMusic(song1)
     }
-    if (value === 76527736) {
+    if (value === 412) {
       randomMusic(song2)
     }
     // 切换乐器
-    if (value >= 76527728 && value <= 76527732) {
+    if (value >= 421 && value <= 426) {
       switch (value) {
-        case 76527732:
+        case 421: case 426:
           currentType = 'piano'
           blePlayMusic(musicMap.piano[0])
           break
-        case 76527728:
+        case 422:
           currentType = 'guitar'
           blePlayMusic(musicMap.guitar[0])
           break
-        case 76527730:
+        case 423:
           currentType = 'muqin'
           blePlayMusic(musicMap.muqin[0])
           break
-        case 76527729:
+        case 424:
           currentType = 'guzheng'
           blePlayMusic(musicMap.guzheng[0])
           break
-        case 76527731:
+        case 425:
           currentType = 'sakesi'
           blePlayMusic(musicMap.sakesi[0])
           break
@@ -216,14 +227,14 @@ export default function music () {
     }
     // 76527767 - 76527771 // 5个黑键
 
-    if (value >= 76527748 && value <= 76527755) { // 5音符
+    if (value >= 431 && value <= 438) { // 5音符
       if (playing) {
-        playMusic(value - 76527748 + 1)
+        playMusic(value - 431 + 1)
       } else {
-        blePlayMusic(musicMap[currentType][value - 76527748])
+        blePlayMusic(musicMap[currentType][value - 431])
       }
     }
-    if (value >= 76527767 && value <= 76527771) { // 7个音符
+    if (value >= 76527767 && value <= 76527771) { // 黑键没有
       blePlayMusic(musicMap[currentType][value - 76527767 + 7])
     }
   }

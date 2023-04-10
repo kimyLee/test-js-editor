@@ -35,8 +35,8 @@ function _setColor (color: number, num = 12, backColor = 0) { // 用x颜色点�
 function _fixCodeVal (val: number) {
   let value = val
   // 识别到颜色 红黄蓝绿
-  if (value > 1800) {
-    value = value - 1800
+  if (value > 500000) {
+    value = value - 500000
   }
   return value
 }
@@ -158,11 +158,11 @@ export default function maze () {
   window.When_JOYO_Read = function (value: number) {
     const val = _fixCodeVal(value)
     console.log('识别到', val)
-    if (val === 90) { // 开始迷宫
+    if (val === 600) { // 开始迷宫
       startGame() // 误触？
     }
-    if (val >= 65 && val <= 89) {
-      if (val === 65) {
+    if (val >= 611 && val <= 635) {
+      if (val === 611) {
         failFlag = false
       }
       if (failFlag) return
@@ -170,8 +170,8 @@ export default function maze () {
       let isBoom = false
       for (let i = 0; i < mapBoomList.length; i++) {
         const item = mapBoomList[i]
-        console.log(item[0], item[1], item[0] + item[1] * 5 + 65, val)
-        if ((item[0] + item[1] * 5 + 65) === val) {
+        console.log(item[0], item[1], item[0] + item[1] * 5 + 611, val)
+        if ((item[0] + item[1] * 5 + 611) === val) {
           isBoom = true
           break
         }
@@ -187,7 +187,7 @@ export default function maze () {
           _setColor(colorGreen)
         }, 300)
       }
-      if (val === 89) { // todo: 采集过程点
+      if (val === 635) { // todo: 采集过程点
         setTimeout(() => {
           blePlayMusic('gwin')
           playlightAnimation(colorWin1, colorWin2, colorWin1)

@@ -36,12 +36,12 @@ function _setColor (color: number, num = 12, backColor = 0) { // 用x颜色点�
 }
 
 function _fixCodeVal (val: number) {
-  let value = val
-  // 识别到颜色 红黄蓝绿
-  if (value > 1800) {
-    value = value - 1800
-  }
-  return value
+  // let value = val
+  // // 识别到颜色 红黄蓝绿
+  // if (value > 1800) {
+  //   value = value - 1800
+  // }
+  return val - 500000
 }
 
 function playlightAnimation (color1: any[], color2: any[], final: any) {
@@ -129,9 +129,9 @@ async function showMenu () {
 
 function pickColor (val: number) {
   const music = ['mat1', 'mat2', 'mat3', 'mat4', 'mat5']
-  const colors = [colorYellow, colorGreen, colorRed, colorPurple]
+  const colors = [colorRed, colorGreen, colorYellow, colorPurple]
   if (userPick.length < targetColor.length) {
-    userPick.push(colors[val - 51])
+    userPick.push(colors[val - 511])
     blePlayMusic(music[userPick.length - 1])
     _setLight(userPick)
   }
@@ -179,16 +179,16 @@ export default function cook () {
   window.When_JOYO_Read = function (value: number) {
     const val = _fixCodeVal(value)
     console.log('识别到', val)
-    if (val === 81) { // 开始迷宫
+    if (val === 500) { // 开始迷宫
       startGame() // 误触？
     }
-    if (val >= 51 && val <= 54) { // 捡菜
+    if (val >= 511 && val <= 514) { // 捡菜
       pickColor(val)
     }
-    if (val === 50) { // 煮菜
+    if (val === 520) { // 煮菜
       checkColor()
     }
-    if (val === 49) { // 煮菜
+    if (val === 505) { // 煮菜
       showMenu()
     }
   }

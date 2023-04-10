@@ -30,7 +30,7 @@ function _setColor (color: number, num = 12, backColor = 0) { // 用x颜色点�
 }
 
 function _fixCodeVal (val: number) {
-  const value = val - 1800
+  const value = val - 500000
   console.log(val, '233')
 
   return value
@@ -158,7 +158,7 @@ function generateMine () { // 生成地雷，每行每列各两个
 function isMine (val: number) {
   for (let i = 0; i < mineList.length; i++) {
     const item = mineList[i]
-    if (val === (item[1] * 6 + item[0] + 49)) {
+    if (val === (item[1] * 6 + item[0] + 101)) {
       return true
     }
   }
@@ -192,10 +192,10 @@ export default function mineSweeper () {
   window.When_JOYO_Read = function (value: number) {
     const val = _fixCodeVal(value)
     console.log('识别到', val)
-    if (val === 37) { // 开始游戏
+    if (val === 100) { // 开始游戏
       startGame() // 误触？
     }
-    if (val >= 49 && val <= 84) { // 扫描输入
+    if (val >= 101 && val <= 136) { // 扫描输入
       handleInput(val)
     }
   }

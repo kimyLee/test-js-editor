@@ -30,6 +30,9 @@ function _setColor (color: number, num = 12, backColor = 0) { // 用x颜色点�
 }
 
 function _fixCodeVal (val: number) {
+  if (val > 500000) {
+    return val - 500000
+  }
   let value = val - 1800
   console.log(value, '233')
   if (value >= 57 && value <= 60) {
@@ -121,29 +124,37 @@ function generateCode () { // 红黄蓝绿4个颜色里生成2个，可重复；
   ans.push(Math.floor(Math.random() * 4))
   ans.push(Math.floor(Math.random() * 4))
   answer = ans
+  const colorMap = [colorRed, colorYellow, colorBlue, colorGreen] // 颜色
+  console.log(answer[0], answer[1])
   // return ans
 }
 
 function checkBasicResult (input: number[], ans: number[]) { // 判断结果，有5种情况 全灭，一白，一黄，两白，两黄，[colorWhite, colorYellow]
   const res = []
-  const index0 = input.indexOf(ans[0])
-  const index1 = input.indexOf(ans[1]) // 44  41
+  const temp_input = [...input]
+  const index0 = temp_input.indexOf(ans[0]) //
+
   if (index0 >= 0) {
     res.push(index0 === 0 ? colorYellow : colorWhite)
+    temp_input[index0] = -1
   }
+  const index1 = temp_input.indexOf(ans[1]) // 44  41
   if (index1 >= 0) {
     res.push(index1 === 1 ? colorYellow : colorWhite)
   }
+  console.log('basic', ...res)
   return res
 }
 
 function checkResult () { // 判断结果，增加业务逻辑
   const res = checkBasicResult(currentInput, answer)
   if (scanTime === 0 && res.length === 2) { // 首次扫描
+    console.log('首次接近全对')
     checkAndReset()
     return
   }
   if (scanTime === 1 && res.join() === [colorYellow, colorYellow].join()) { // 第2次全对
+    console.log('第二次全对')
     checkAndReset()
     return
   }
@@ -201,13 +212,13 @@ export default function unlocko () {
   window.When_JOYO_Read = function (value: number) {
     const val = _fixCodeVal(value)
     console.log('识别到', val)
-    if (val === 34) {
+    if (val === 200) {
       startGame() // 误触？
     }
     if (val >= 0 && val <= 3 && currentInput.length < 2) { // 扫描输入
       handleInput(val)
     }
-    if (val === 35 && currentInput.length === 2) { // 检查答案
+    if (val === 205 && currentInput.length === 2) { // 检查答案
       checkResult()
     }
   }
