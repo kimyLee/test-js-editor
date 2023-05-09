@@ -32,15 +32,23 @@
                                   @click.stop="visibleOfConnectTip = true" />
       </a-button>
 
-      <a-button key="2"
+      <!-- <a-button key="2"
                 class="header-btn"
                 @click.stop="runRich">
         开始大富翁游戏
         <template #icon>
           <PlusOutlined />
         </template>
-      </a-button>
+      </a-button> -->
       <a-button key="2"
+                class="header-btn"
+                @click.stop="runUnlocko">
+        开始所有游戏
+        <template #icon>
+          <PlusOutlined />
+        </template>
+      </a-button>
+      <!-- <a-button key="2"
                 class="header-btn"
                 @click.stop="runUnlocko">
         开始Unlocko游戏
@@ -107,7 +115,7 @@
         <template #icon>
           <PlusOutlined />
         </template>
-      </a-button>
+      </a-button> -->
     </HeaderNav>
     <div class="container">
       <div class="warning-tip">
@@ -228,12 +236,13 @@ import { exportFile } from '@/lib/project/common'
 import { bleState } from '@/api/joyo-ble/web-ble-server'
 import { locale, LocaleEnum } from '@/locale/index'
 import LANG from '@/i18n/type'
-import spy from '@/game-test/spy'
-import rich from '@/game-test/rich'
+// import spy from '@/game-test/spy'
+// import rich from '@/game-test/rich'
 import unlocko from '@/game-test/unlocko'
 import ohmind from '@/game-test/ohmind'
 import mineSweeper from '@/game-test/mine-sweeper'
 import hideAndSeek from '@/game-test/hide-and-seek'
+import fastCat from '@/game-test/fast-cat'
 import bee from '@/game-test/bee'
 import music from '@/game-test/music'
 import maze from '@/game-test/maze'
@@ -468,36 +477,44 @@ export default defineComponent({
       window.open(link)
     }
 
-    function runSpy () {
-      spy()
-    }
-    function runRich () {
-      rich()
-    }
+    // function runSpy () {
+    //   spy()
+    // }
+    // function runRich () {
+    //   rich()
+    // }
     function runUnlocko () { // 2人版unlocko
-      unlocko()
-    }
-    function runOhmind () { // 2人版unlocko
-      ohmind()
-    }
-    function runMineSweeper () { // 2人版unlocko
-      mineSweeper()
-    }
-    function runHideAndSeek () { // 王子救公主
-      hideAndSeek()
-    }
-    function runBee () { // 王子救公主
-      bee()
-    }
-    function runMusic () { // 王子救公主
+      // unlocko()
+      // ohmind()
+      // mineSweeper()
+      // hideAndSeek()
+      // // fastCat()
+      // bee()
       music()
+      // maze()
+      // cook()
     }
-    function runMaze () { // 王子救公主
-      maze()
-    }
-    function runCook () { // 王子救公主
-      cook()
-    }
+    // function runOhmind () { // 2人版unlocko
+    //   ohmind()
+    // }
+    // function runMineSweeper () { // 2人版unlocko
+    //   mineSweeper()
+    // }
+    // function runHideAndSeek () { // 王子救公主
+    //   hideAndSeek()
+    // }
+    // function runBee () { // 王子救公主
+    //   bee()
+    // }
+    // function runMusic () { // 王子救公主
+    //   music()
+    // }
+    // function runMaze () { // 王子救公主
+    //   maze()
+    // }
+    // function runCook () { // 王子救公主
+    //   cook()
+    // }
 
     onBeforeMount(async () => {
       // await fetchProjectList(state.tabType)
@@ -512,6 +529,15 @@ export default defineComponent({
         if (msg.length === 11 && msg[2] === 0x05 && msg[3] === 0xB1 && msg[4] === 0x04) {
           const val = (msg[10] * 256 * 256 * 256 + msg[9] * 256 * 256 + msg[8] * 256 + msg[7])
           window.When_JOYO_Read && window.When_JOYO_Read(val)
+          window.When_JOYO_Read_cat && window.When_JOYO_Read_cat(val)
+          window.When_JOYO_Read_cook && window.When_JOYO_Read_cook(val)
+          window.When_JOYO_Read_bee && window.When_JOYO_Read_bee(val)
+          window.When_JOYO_Read_hide && window.When_JOYO_Read_hide(val)
+          window.When_JOYO_Read_maze && window.When_JOYO_Read_maze(val)
+          window.When_JOYO_Read_mine && window.When_JOYO_Read_mine(val)
+          window.When_JOYO_Read_music && window.When_JOYO_Read_music(val)
+          window.When_JOYO_Read_ohmind && window.When_JOYO_Read_ohmind(val)
+          window.When_JOYO_Read_unlocko && window.When_JOYO_Read_unlocko(val)
         }
       }
 
@@ -524,16 +550,16 @@ export default defineComponent({
     })
 
     return {
-      runSpy,
-      runRich,
+      // runSpy,
+      // runRich,
       runUnlocko,
-      runOhmind,
-      runMineSweeper,
-      runHideAndSeek,
-      runBee,
-      runMusic,
-      runMaze,
-      runCook,
+      // runOhmind,
+      // runMineSweeper,
+      // runHideAndSeek,
+      // runBee,
+      // runMusic,
+      // runMaze,
+      // runCook,
       router,
       refCreatePopBox,
       ...toRefs(state),

@@ -6,7 +6,7 @@ import { point } from 'blockly/core/utils/svg_paths'
 
 declare global {
   interface Window {
-    When_JOYO_Read: any;
+    When_JOYO_Read_cook: any;
   }
 }
 
@@ -93,7 +93,8 @@ function startGame () {
 
 function generateMenu () { // 生成菜等颜色
   const colors = [colorYellow, colorGreen, colorRed, colorPurple]
-  const levelNum = [2, 3, 3, 4, 5]
+  // const levelNum = [3, 4, 5, 5, 5]
+  const levelNum = [3, 4, 5]
   const res = []
 
   for (let i = 0; i < levelNum[level - 1]; i++) {
@@ -107,7 +108,7 @@ async function showMenu () {
   if (showFlag) return
   showFlag = true
   const list = generateMenu()
-  const music = ['mat1', 'mat2', 'mat3', 'mat4', 'mat5']
+  const music = ['men1', 'men2', 'men3', 'men4', 'men5']
   function play (index: number) {
     return new Promise((resolve, reject) => {
       blePlayMusic(music[index])
@@ -121,18 +122,18 @@ async function showMenu () {
     await play(i)
   }
   setTimeout(() => {
-    blePlayMusic('nwit')
+    blePlayMusic('menf')
     _setColor(0)
     showFlag = false
   }, 500)
 }
 
 function pickColor (val: number) {
-  const music = ['mat1', 'mat2', 'mat3', 'mat4', 'mat5']
+  const music = ['ckr1', 'ckg1', 'cky1', 'ckp1']
   const colors = [colorRed, colorGreen, colorYellow, colorPurple]
   if (userPick.length < targetColor.length) {
     userPick.push(colors[val - 511])
-    blePlayMusic(music[userPick.length - 1])
+    blePlayMusic(music[val - 511])
     _setLight(userPick)
   }
 }
@@ -141,10 +142,10 @@ function checkColor () {
   if (userPick.length === targetColor.length) {
     const str1 = JSON.stringify(userPick.sort())
     const str2 = JSON.stringify(targetColor.sort())
-    const music = ['good', 'gret', 'amaz', 'pert']
-    const index = Math.min(level, 4)
+    const music = ['c001', 'c003', 'c005', 'c005']
+    const index = Math.min(level, 3)
 
-    blePlayMusic('roll')
+    blePlayMusic('fire')
     if (str1 === str2) {
       // blePlayMusic(music[index - 1])
       // _setColor(colorGreen)
@@ -156,16 +157,20 @@ function checkColor () {
     } else {
       playlightAnimation(colorWhite1, colorWhite2, Array(12).fill(colorRed))
       setTimeout(() => {
-        blePlayMusic('gswa')
+        blePlayMusic('cneg')
       }, 1000)
       // _setColor(colorRed)
       // blePlayMusic('gswa')
     }
-    if (level < 5) {
+    if (level < 3) {
       level++
     } else {
       setTimeout(() => {
         blePlayMusic('gwin')
+        playlightAnimation(colorWin1, colorWin2, colorWin1)
+        setTimeout(() => {
+          _setColor(colorGreen, score)
+        }, 1000)
         _setColor(colorWhite, score)
       }, 1500)
     }
@@ -176,7 +181,7 @@ function checkColor () {
 export default function cook () {
   console.log('cook game running')
 
-  window.When_JOYO_Read = function (value: number) {
+  window.When_JOYO_Read_cook = function (value: number) {
     const val = _fixCodeVal(value)
     console.log('识别到', val)
     if (val === 500) { // 开始迷宫

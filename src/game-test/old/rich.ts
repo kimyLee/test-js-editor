@@ -5,7 +5,7 @@ import { connectJoyo, bleState } from '@/api/joyo-ble/web-ble-server'
 
 declare global {
   interface Window {
-    When_JOYO_Read: any;
+    When_JOYO_Read_rich: any;
   }
 }
 
@@ -325,7 +325,7 @@ function getMagicCard () {
 export default function rich () {
   console.log('spy game running')
 
-  window.When_JOYO_Read = function (val: number) {
+  window.When_JOYO_Read_rich = function (val: number) {
     // 游戏开始选择玩家
     // let value = val - 1800
     const value = _fixCodeVal(val)

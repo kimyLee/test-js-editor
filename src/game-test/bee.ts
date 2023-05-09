@@ -5,7 +5,7 @@ import { connectJoyo, bleState } from '@/api/joyo-ble/web-ble-server'
 
 declare global {
   interface Window {
-    When_JOYO_Read: any;
+    When_JOYO_Read_bee: any;
   }
 }
 
@@ -75,65 +75,43 @@ function lightAnimation (finnal: number, current: number, cb: any) {
   }
 }
 
-function randomMoney () {
-  if (running) return
-  running = true
-  clearAllLight()
-  const colors = [0xff9800, 0xfeca06, 0xfedd7b, 0, 0, 0, 0, 0]
-  const resColor = [colorRed, colorYellow, colorBlue, colorGreen, colorWhite]
-  const result = Math.floor(Math.random() * 5) // 红黄蓝绿白
-  blePlayMusic('loty')
-  lightAnimation(60, 0, (current: number, isFinnal: boolean) => {
-    const index = current % 8
-    const part1 = colors.slice(0, index)
-    const part2 = colors.slice(index)
-    const arr = part2.concat(part1)
-    _setLight(arr)
-
-    if (isFinnal) {
-      const i = arr.indexOf(0xff9800)
-      const arr1 = Array(8).fill(0)
-      arr1[i] = 0xff9800
-      setTimeout(() => {
-        blePlayMusic('ev02')
-        _setColor(resColor[result])
-        running = false
-      }, 200)
-    }
-  })
-}
-
 function roll () {
   const resColor = [colorRed, colorYellow, colorBlue, colorGreen, colorWhite]
   const resultArr = resColor[(Math.floor(Math.random() * 5))]
-  blePlayMusic('roll') //
+  blePlayMusic('step') //
   playlightAnimation(colorWhite1, colorWhite2, Array(12).fill(resultArr))
   setTimeout(() => {
-    blePlayMusic('mat1') // mat1
+    blePlayMusic('crep') // cren
   }, 1000)
 }
 
 let lastVal = -1
-let running = false
+const running = false
 
 function startGame () {
-  blePlayMusic('gbeg')
+  blePlayMusic('csta')
   lastVal = -1
-  _setColor(colorWhite)
+  _setColor(colorGreen)
 }
 
 export default function bee () {
   console.log('bee game running')
 
-  window.When_JOYO_Read = function (val: number) {
+  window.When_JOYO_Read_bee = function (val: number) {
     const value = _fixCodeVal(val)
     if (value === 700) { // 开始游戏
       startGame()
     }
     if (value === 705) {
-      // 骰子
-      // randomMoney()
       roll()
     }
+    // if (value === 705) {
+    //   blePlayMusic('cnnt')
+    // }
+    // if (value >= 710 && value <= 721) {
+    //   // 骰子
+    //   // randomMoney()
+    //   roll()
+    // }
   }
 }

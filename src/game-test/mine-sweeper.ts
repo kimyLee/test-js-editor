@@ -5,7 +5,7 @@ import { connectJoyo, bleState } from '@/api/joyo-ble/web-ble-server'
 
 declare global {
   interface Window {
-    When_JOYO_Read: any;
+    When_JOYO_Read_mine: any;
   }
 }
 
@@ -74,24 +74,25 @@ let mineList = [] as any[]
 function startGame () {
   mineList = []
   findTime = 0
-  blePlayMusic('gbeg')
+  blePlayMusic('cbeg')
 
   // _setColor(colorGreen) // 全绿
 
   const colors = [0xff9800, 0xfeca06, 0xfedd7b, 0, 0, 0, 0, 0]
-  lightAnimation(40, 0, (current: number, isFinnal: boolean) => {
-    const index = current % 8
-    const part1 = colors.slice(0, index)
-    const part2 = colors.slice(index)
-    const arr = part2.concat(part1)
-    _setLight(arr)
+  _setColor(colorGreen)
+  // lightAnimation(40, 0, (current: number, isFinnal: boolean) => {
+  //   const index = current % 8
+  //   const part1 = colors.slice(0, index)
+  //   const part2 = colors.slice(index)
+  //   const arr = part2.concat(part1)
+  //   _setLight(arr)
 
-    if (isFinnal) {
-      setTimeout(() => {
-        _setColor(colorGreen)
-      }, 200)
-    }
-  })
+  //   if (isFinnal) {
+  //     setTimeout(() => {
+  //       _setColor(colorGreen)
+  //     }, 200)
+  //   }
+  // })
 
   generateMine()
 }
@@ -166,11 +167,11 @@ function isMine (val: number) {
 }
 
 function handleInput (val: number) { // 根据结果显示灯光 0 - 3 红黄蓝绿
-  blePlayMusic('mat1')
+  blePlayMusic('mine')
   _setColor(colorWhite)
   setTimeout(() => {
     if (isMine(val)) {
-      blePlayMusic('fhed')
+      blePlayMusic('scnp')
       _setColor(colorBlue)
       findTime++
       if (findTime >= 12) {
@@ -180,7 +181,7 @@ function handleInput (val: number) { // 根据结果显示灯光 0 - 3 红黄蓝
         })
       }
     } else {
-      blePlayMusic('fnon')
+      blePlayMusic('scnn')
       _setColor(colorRed)
     }
   }, 500)
@@ -189,7 +190,7 @@ function handleInput (val: number) { // 根据结果显示灯光 0 - 3 红黄蓝
 export default function mineSweeper () {
   console.log('ohmind game running')
 
-  window.When_JOYO_Read = function (value: number) {
+  window.When_JOYO_Read_mine = function (value: number) {
     const val = _fixCodeVal(value)
     console.log('识别到', val)
     if (val === 100) { // 开始游戏

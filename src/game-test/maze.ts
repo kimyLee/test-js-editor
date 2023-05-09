@@ -6,7 +6,7 @@ import { point } from 'blockly/core/utils/svg_paths'
 
 declare global {
   interface Window {
-    When_JOYO_Read: any;
+    When_JOYO_Read_maze: any;
   }
 }
 
@@ -82,22 +82,23 @@ function startGame () {
   generateLine() // 生成一条线
   generateBoom()
 
-  blePlayMusic('gbeg')
+  blePlayMusic('cbeg')
 
   const colors = [0xff9800, 0xfeca06, 0xfedd7b, 0, 0, 0, 0, 0]
-  lightAnimation(40, 0, (current: number, isFinnal: boolean) => {
-    const index = current % 8
-    const part1 = colors.slice(0, index)
-    const part2 = colors.slice(index)
-    const arr = part2.concat(part1)
-    _setLight(arr)
+  _setColor(colorGreen)
+  // lightAnimation(40, 0, (current: number, isFinnal: boolean) => {
+  //   const index = current % 8
+  //   const part1 = colors.slice(0, index)
+  //   const part2 = colors.slice(index)
+  //   const arr = part2.concat(part1)
+  //   _setLight(arr)
 
-    if (isFinnal) {
-      setTimeout(() => {
-        _setColor(colorWhite)
-      }, 200)
-    }
-  })
+  //   if (isFinnal) {
+  //     setTimeout(() => {
+  //       _setColor(colorWhite)
+  //     }, 200)
+  //   }
+  // })
 }
 
 function generateLine () { // 生成一条可行路径，在路径之外随机生成6个炸弹
@@ -126,7 +127,7 @@ function generateLine () { // 生成一条可行路径，在路径之外随机�
 
 function generateBoom () { // 生成炸弹
   const boomList = [] as any[]
-  while (boomList.length < 8) {
+  while (boomList.length < 9) {
     const x = Math.floor(Math.random() * 5)
     const y = Math.floor(Math.random() * 5)
     let sameFlag = false
@@ -155,7 +156,7 @@ function generateBoom () { // 生成炸弹
 export default function maze () {
   console.log('maze game running')
 
-  window.When_JOYO_Read = function (value: number) {
+  window.When_JOYO_Read_maze = function (value: number) {
     const val = _fixCodeVal(value)
     console.log('识别到', val)
     if (val === 600) { // 开始迷宫
@@ -163,6 +164,7 @@ export default function maze () {
     }
     if (val >= 611 && val <= 635) {
       if (val === 611) {
+        blePlayMusic('mazs')
         failFlag = false
       }
       if (failFlag) return
@@ -178,10 +180,17 @@ export default function maze () {
       }
       if (isBoom) {
         failFlag = true
-        blePlayMusic('gswa')
+        // const sets = ['trp1', 'trp2', 'trp3', 'trp4', 'trp5']
+        // blePlayMusic(sets[Math.floor(Math.random() * 5)]) // 随机陷阱
+        blePlayMusic('trp5') // 随机陷阱
         playlightAnimation(colorRed1, colorRed2, colorRed1)
       } else {
-        blePlayMusic('mat1')
+        // const sets = ['maz1', 'maz2', 'maz3', 'maz4', 'maz5']
+        if (val !== 611) {
+          // blePlayMusic(sets[Math.floor(Math.random() * 5)]) // 随机命中
+          blePlayMusic('maz5') // 随机命中
+        }
+        blePlayMusic('maz5') // 随机命中
         _setColor(0)
         setTimeout(() => {
           _setColor(colorGreen)

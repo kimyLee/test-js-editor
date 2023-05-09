@@ -5,7 +5,7 @@ import { connectJoyo, bleState } from '@/api/joyo-ble/web-ble-server'
 
 declare global {
   interface Window {
-    When_JOYO_Read: any;
+    When_JOYO_Read_spy: any;
   }
 }
 
@@ -250,7 +250,7 @@ export default function spy () {
   let currentPicked = [] as any[]
   let currentPickedAll = [] as any[] // 收集所有扫描过的点
 
-  window.When_JOYO_Read = function (val: number) {
+  window.When_JOYO_Read_spy = function (val: number) {
     // 游戏开始选择玩家
     // let value = val - 1800
     const value = _fixCodeVal(val)

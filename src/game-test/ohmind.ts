@@ -5,7 +5,7 @@ import { connectJoyo, bleState } from '@/api/joyo-ble/web-ble-server'
 
 declare global {
   interface Window {
-    When_JOYO_Read: any;
+    When_JOYO_Read_ohmind: any;
   }
 }
 
@@ -33,22 +33,25 @@ function _setColor (color: number, num = 12, backColor = 0) { // 用x颜色点�
 function _fixCodeVal (val: number) {
   let value = val
   console.log(val, '233')
+  if (val > 500000) {
+    value = val - 500000
+  }
   // 识别到颜色 红黄蓝绿
-  if (value >= 341 && value <= 344) {
+  if (value >= 321 && value <= 324) {
     value = 0
   }
-  if (value >= 361 && value <= 366) {
+  if (value >= 301 && value <= 304) {
     value = 1
   }
-  if (value >= 381 && value <= 384) {
+  if (value >= 331 && value <= 334) {
     value = 2
   }
-  if (value >= 351 && value <= 354) {
+  if (value >= 311 && value <= 314) {
     value = 3
   }
-  if (value > 500000) {
-    value = value - 500000
-  }
+  // if (value > 500000) {
+  //   value = value - 500000
+  // }
   return value
 }
 
@@ -94,29 +97,30 @@ function startGame () {
   comboFlag = 0
   findTime = 0
   timer = null
-  blePlayMusic('gbeg')
+  blePlayMusic('cbeg')
 
   // _setColor(colorGreen) // 全绿
 
   const colors = [0xff9800, 0xfeca06, 0xfedd7b, 0, 0, 0, 0, 0]
-  lightAnimation(40, 0, (current: number, isFinnal: boolean) => {
-    const index = current % 8
-    const part1 = colors.slice(0, index)
-    const part2 = colors.slice(index)
-    const arr = part2.concat(part1)
-    _setLight(arr)
+  _setColor(colorGreen)
+  // lightAnimation(40, 0, (current: number, isFinnal: boolean) => {
+  //   const index = current % 8
+  //   const part1 = colors.slice(0, index)
+  //   const part2 = colors.slice(index)
+  //   const arr = part2.concat(part1)
+  //   _setLight(arr)
 
-    if (isFinnal) {
-      setTimeout(() => {
-        _setColor(colorWhite)
-      }, 200)
-    }
-  })
+  //   if (isFinnal) {
+  //     setTimeout(() => {
+  //       _setColor(colorWhite)
+  //     }, 200)
+  //   }
+  // })
 }
 
 function checkResult () { // 判断结果，增加业务逻辑
   if (currentInput[0] === currentInput[1]) { // 成功
-    const music = ['good', 'gret', 'amaz', 'pert']
+    const music = ['cbo1', 'cbo2', 'cbo3', 'cbo3']
     blePlayMusic(music[comboFlag])
     comboFlag++
     comboFlag = Math.min(comboFlag, 3)
@@ -129,13 +133,13 @@ function checkResult () { // 判断结果，增加业务逻辑
     }
     setTimeout(() => {
       _setColor(0)
-    }, 200)
+    }, 500)
   } else {
     comboFlag = 0
-    blePlayMusic('nwit')
+    blePlayMusic('merr')
     setTimeout(() => {
       _setLight(colorWrong)
-    }, 200)
+    }, 0)
   }
 
   currentInput = []
@@ -155,11 +159,11 @@ function handleInput (val: number) { // 根据结果显示灯光 0 - 3 红黄蓝
     if (currentInput.length === 2) {
       setTimeout(() => {
         checkResult()
-      }, 300)
-    } else {
-      setTimeout(() => {
-        _setColor(0)
       }, 500)
+    } else {
+      // setTimeout(() => {
+      //   _setColor(0)
+      // }, 500)
     }
   }, 500)
 }
@@ -167,7 +171,7 @@ function handleInput (val: number) { // 根据结果显示灯光 0 - 3 红黄蓝
 export default function ohmind () {
   console.log('ohmind game running')
 
-  window.When_JOYO_Read = function (value: number) {
+  window.When_JOYO_Read_ohmind = function (value: number) {
     const val = _fixCodeVal(value)
     console.log('识别到', val)
     if (val === 300) { // 开始游戏

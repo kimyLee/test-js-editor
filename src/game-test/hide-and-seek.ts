@@ -6,7 +6,7 @@ import { point } from 'blockly/core/utils/svg_paths'
 
 declare global {
   interface Window {
-    When_JOYO_Read: any;
+    When_JOYO_Read_hide: any;
   }
 }
 
@@ -15,6 +15,8 @@ const colorGreen = 0x00ff00
 const colorBlue = 0x0000ff
 const colorWhite = 0xffffff
 const colorYellow = 0xffff00
+
+let animationTimer = null as any
 
 // 动画数组
 const colorRed1 = [0xff0000, 0, 0xff0000, 0, 0xff0000, 0, 0xff0000, 0, 0xff0000, 0xff0000, 0xff0000, 0xff0000]
@@ -77,10 +79,14 @@ let targetPos = -1
 let targetDoor = -1
 let unlockFlag = false
 let hideFlag = false
+let unlockTime = 0
 
 function startGame () {
+  clearAllLight()
+  clearInterval(animationTimer)
   generateDoor()
   targetPos = -1
+  unlockTime = 0
   unlockFlag = false
 
   // _setColor(colorGreen) // 全绿
@@ -103,16 +109,14 @@ function startGame () {
 }
 
 function generateDoor () {
-  targetDoor = Math.floor(Math.random() * 6) + 49
+  targetDoor = Math.floor(Math.random() * 6)
 }
 
 function hidePoint (val: number) {
   targetPos = val
   // blePlayMusic('swbm')
-  setTimeout(() => {
-    blePlayMusic('csm2')
-    _setColor(colorGreen)
-  }, 800)
+  blePlayMusic('csm2')
+  _setColor(colorGreen)
 }
 
 function checkIsTarget (val: number) {
@@ -132,7 +136,8 @@ function checkIsTarget (val: number) {
   }
 }
 
-function unlockDoor (val: number) {
+function unlockDoor () {
+  const val = Math.floor((Math.random() * (6 - unlockTime)))
   if (unlockFlag) {
     blePlayMusic('mat1')
     if (targetDoor === val) {
@@ -150,23 +155,60 @@ function unlockDoor (val: number) {
   }
 }
 
+let count = 0
+
+function roll () { // 摇骰子， 蓝色王子，红色牛牛
+  clearInterval(animationTimer)
+  const redFirst = Math.random() > 0.5 // 是否红先走
+  const map = [
+    [3, 2],
+    [3, 1],
+    [2, 2],
+    [2, 1],
+    [1, 2],
+    [1, 1],
+  ]
+  const res = map[Math.floor(Math.random() * 6)]
+  const arr1 = Array(res[0]).fill(colorBlue)
+  const arr2 = Array(res[1]).fill(colorRed)
+  const animation1 = redFirst ? [...arr2] : [...arr1]
+  const animation2 = redFirst ? [...arr2, ...arr1] : [...arr1, ...arr2]
+  animationTimer = setInterval(() => {
+    if (count % 2) {
+      _setLight(animation2)
+    } else {
+      _setLight(animation1)
+    }
+    count = count > 100 ? 0 : (count + 1)
+  }, 500)
+}
+
 export default function hideAndSeek () {
   console.log('hideAndSeek game running')
 
-  window.When_JOYO_Read = function (value: number) {
+  window.When_JOYO_Read_hide = function (value: number) {
     const val = _fixCodeVal(value)
     console.log('识别到', val)
-    if (val === 38) { // 开始捉迷藏
+    if (val === 81) { // 开始捉迷藏
+      clearInterval(animationTimer)
       startGame() // 误触？
     }
-    if (val === 55) {
+    if (val === 82) {
+      clearInterval(animationTimer)
       blePlayMusic('swbm')
       hideFlag = true
     }
-    if (val >= 49 && val <= 54 && unlockFlag) {
-      unlockDoor(val)
+    if (val === 84) {
+      clearInterval(animationTimer)
+      blePlayMusic('roll')
+      roll()
     }
-    if (val >= 56 && val <= 68 && !unlockFlag) {
+    if (val === 83 && unlockFlag) {
+      clearInterval(animationTimer)
+      unlockDoor()
+    }
+    if (val >= 85 && val <= 92 && !unlockFlag) {
+      clearInterval(animationTimer)
       if (hideFlag) {
         hidePoint(val)
         hideFlag = false

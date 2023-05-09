@@ -5,7 +5,7 @@ import { connectJoyo, bleState } from '@/api/joyo-ble/web-ble-server'
 
 declare global {
   interface Window {
-    When_JOYO_Read: any;
+    When_JOYO_Read_unlocko: any;
   }
 }
 
@@ -30,23 +30,25 @@ function _setColor (color: number, num = 12, backColor = 0) { // 用x颜色点�
 }
 
 function _fixCodeVal (val: number) {
+  console.log('_fixCodeVal', val)
+  let value = val
   if (val > 500000) {
-    return val - 500000
+    value = val - 500000
   }
-  let value = val - 1800
-  console.log(value, '233')
-  if (value >= 57 && value <= 60) {
+
+  if (value === 230) {
     value = 0
   }
-  if (value >= 61 && value <= 64) {
+  if (value === 220) {
     value = 1
   }
-  if (value >= 49 && value <= 52) {
+  if (value === 240) {
     value = 2
   }
-  if (value >= 53 && value <= 56) {
+  if (value === 210) {
     value = 3
   }
+  console.log(value, '2331')
   return value
 }
 
@@ -102,19 +104,20 @@ function startGame () {
   // _setColor(colorGreen) // 全绿
 
   const colors = [0xff9800, 0xfeca06, 0xfedd7b, 0, 0, 0, 0, 0]
-  lightAnimation(40, 0, (current: number, isFinnal: boolean) => {
-    const index = current % 8
-    const part1 = colors.slice(0, index)
-    const part2 = colors.slice(index)
-    const arr = part2.concat(part1)
-    _setLight(arr)
+  _setColor(colorGreen)
+  // lightAnimation(40, 0, (current: number, isFinnal: boolean) => {
+  //   const index = current % 8
+  //   const part1 = colors.slice(0, index)
+  //   const part2 = colors.slice(index)
+  //   const arr = part2.concat(part1)
+  //   _setLight(arr)
 
-    if (isFinnal) {
-      setTimeout(() => {
-        _setColor(colorGreen)
-      }, 200)
-    }
-  })
+  //   if (isFinnal) {
+  //     setTimeout(() => {
+  //       _setColor(colorGreen)
+  //     }, 200)
+  //   }
+  // })
 
   generateCode()
 }
@@ -209,7 +212,7 @@ function handleInput (val: number) { // 根据结果显示灯光 0 - 3 红黄蓝
 export default function unlocko () {
   console.log('unlocko game running')
 
-  window.When_JOYO_Read = function (value: number) {
+  window.When_JOYO_Read_unlocko = function (value: number) {
     const val = _fixCodeVal(value)
     console.log('识别到', val)
     if (val === 200) {
