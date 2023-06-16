@@ -13,6 +13,7 @@ import type { BlocklyStateType } from './blockly'
 import guessNum from '@/lib/preset-game/guess-num.jo'
 import piano from '@/lib/preset-game/piano.jo'
 import randomLight from '@/lib/preset-game/random.jo'
+import { projectPrefix } from '@/utils/config'
 
 export const key: InjectionKey<Store<State>> = Symbol('key')
 
@@ -70,7 +71,7 @@ export default createStore({
       localStorage.setItem('projectList', JSON.stringify(state.projectList))
 
       // 生成初始代码
-      localStorage.setItem(`block-${project.uuid}`, content || preSet.runSample)
+      localStorage.setItem(`js-${project.uuid}`, content || preSet.runSample)
       setTimeout(() => {
         return Promise.resolve()
       })
@@ -86,7 +87,7 @@ export default createStore({
 
     // 保存程序
     updateProject ({ commit, state }, { uuid, content }) {
-      localStorage.setItem(`block-${uuid}`, content)
+      localStorage.setItem(`${projectPrefix}-${uuid}`, content)
       // 更新对应的update时间
       for (let i = state.projectList.length; i--;) {
         if (state.projectList[i].uuid === uuid - 0) {
@@ -100,7 +101,7 @@ export default createStore({
     // 游戏玩法说明相关
 
     deleteProject ({ commit, state }, uuid) {
-      localStorage.removeItem(`block-${uuid}`)
+      localStorage.removeItem(`${projectPrefix}-${uuid}`)
 
       for (let i = state.projectList.length; i--;) {
         if (state.projectList[i].uuid === uuid) {

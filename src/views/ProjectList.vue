@@ -32,90 +32,14 @@
                                   @click.stop="visibleOfConnectTip = true" />
       </a-button>
 
-      <!-- <a-button key="2"
-                class="header-btn"
-                @click.stop="runRich">
-        开始大富翁游戏
-        <template #icon>
-          <PlusOutlined />
-        </template>
-      </a-button> -->
       <a-button key="2"
                 class="header-btn"
-                @click.stop="runUnlocko">
-        开始所有游戏
+                @click.stop="createProjectPop">
+        创建JS程序
         <template #icon>
           <PlusOutlined />
         </template>
       </a-button>
-      <!-- <a-button key="2"
-                class="header-btn"
-                @click.stop="runUnlocko">
-        开始Unlocko游戏
-        <template #icon>
-          <PlusOutlined />
-        </template>
-      </a-button>
-
-      <a-button key="2"
-                class="header-btn"
-                @click.stop="runOhmind">
-        开始Ohmind游戏
-        <template #icon>
-          <PlusOutlined />
-        </template>
-      </a-button>
-
-      <a-button key="2"
-                class="header-btn"
-                @click.stop="runMineSweeper">
-        开始扫雷
-        <template #icon>
-          <PlusOutlined />
-        </template>
-      </a-button>
-
-      <a-button key="2"
-                class="header-btn"
-                @click.stop="runHideAndSeek">
-        开始捉迷藏
-        <template #icon>
-          <PlusOutlined />
-        </template>
-      </a-button>
-
-      <a-button key="2"
-                class="header-btn"
-                @click.stop="runBee">
-        开始蜜蜂游戏
-        <template #icon>
-          <PlusOutlined />
-        </template>
-      </a-button>
-      <a-button key="2"
-                class="header-btn"
-                @click.stop="runMusic">
-        开始音乐
-        <template #icon>
-          <PlusOutlined />
-        </template>
-      </a-button>
-      <a-button key="2"
-                class="header-btn"
-                @click.stop="runMaze">
-        开始迷宫
-        <template #icon>
-          <PlusOutlined />
-        </template>
-      </a-button>
-      <a-button key="2"
-                class="header-btn"
-                @click.stop="runCook">
-        开始做饭
-        <template #icon>
-          <PlusOutlined />
-        </template>
-      </a-button> -->
     </HeaderNav>
     <div class="container">
       <div class="warning-tip">
@@ -248,6 +172,8 @@ import music from '@/game-test/music'
 import maze from '@/game-test/maze'
 import cook from '@/game-test/cook'
 
+import { projectPrefix } from '@/utils/config'
+
 declare global {
     interface Window {
       JSZip: any,
@@ -373,7 +299,8 @@ export default defineComponent({
       }
     }
     const onProjectClick = (v: { uuid: string }) => {
-      router.push(`/blockly?uuid=${v.uuid}`)
+      // router.push(`/blockly?uuid=${v.uuid}`)
+      router.push(`/js-editor?uuid=${v.uuid}`)
     }
 
     function importProgram () { // 从已有程序里倒入
@@ -411,7 +338,7 @@ export default defineComponent({
         const zip = new JSZip()
         projectList.value.forEach((project: any) => {
         // zip包里面不断塞svg文件
-          const content = localStorage.getItem(`block-${project.uuid}`)
+          const content = localStorage.getItem(`${projectPrefix}-${project.uuid}`)
           zip.file(project.name + '.jo', content)
         })
         zip.generateAsync({
@@ -438,7 +365,7 @@ export default defineComponent({
 
     // 导出单个程序
     function exportProgram (name: string, uuid: string) {
-      const content = localStorage.getItem(`block-${uuid}`) // todo: 获取程序详情收归一处
+      const content = localStorage.getItem(`${projectPrefix}-${uuid}`) // todo: 获取程序详情收归一处
       if (content) {
         exportFile(name + '.jo', content)
       } else {
@@ -529,15 +456,15 @@ export default defineComponent({
         if (msg.length === 11 && msg[2] === 0x05 && msg[3] === 0xB1 && msg[4] === 0x04) {
           const val = (msg[10] * 256 * 256 * 256 + msg[9] * 256 * 256 + msg[8] * 256 + msg[7])
           window.When_JOYO_Read && window.When_JOYO_Read(val)
-          window.When_JOYO_Read_cat && window.When_JOYO_Read_cat(val)
-          window.When_JOYO_Read_cook && window.When_JOYO_Read_cook(val)
-          window.When_JOYO_Read_bee && window.When_JOYO_Read_bee(val)
-          window.When_JOYO_Read_hide && window.When_JOYO_Read_hide(val)
-          window.When_JOYO_Read_maze && window.When_JOYO_Read_maze(val)
-          window.When_JOYO_Read_mine && window.When_JOYO_Read_mine(val)
-          window.When_JOYO_Read_music && window.When_JOYO_Read_music(val)
-          window.When_JOYO_Read_ohmind && window.When_JOYO_Read_ohmind(val)
-          window.When_JOYO_Read_unlocko && window.When_JOYO_Read_unlocko(val)
+          // window.When_JOYO_Read_cat && window.When_JOYO_Read_cat(val)
+          // window.When_JOYO_Read_cook && window.When_JOYO_Read_cook(val)
+          // window.When_JOYO_Read_bee && window.When_JOYO_Read_bee(val)
+          // window.When_JOYO_Read_hide && window.When_JOYO_Read_hide(val)
+          // window.When_JOYO_Read_maze && window.When_JOYO_Read_maze(val)
+          // window.When_JOYO_Read_mine && window.When_JOYO_Read_mine(val)
+          // window.When_JOYO_Read_music && window.When_JOYO_Read_music(val)
+          // window.When_JOYO_Read_ohmind && window.When_JOYO_Read_ohmind(val)
+          // window.When_JOYO_Read_unlocko && window.When_JOYO_Read_unlocko(val)
         }
       }
 

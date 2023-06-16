@@ -3,15 +3,16 @@
   <div class="code-view">
     <div class="header">
       <div>
-        <span class="back"
-              @click="navigatorBack()">
-          Back
+        <span class="title"
+              style="font-size: 20px;margin-left: 20px"
+              @click="navigatorBack">
+          首页
         </span>
         <!-- 上传文件 -->
         <label class="title"
-               style="font-size: 20px;margin-left: 16px;"
+               style="font-size: 20px;"
                for="fileInput">
-          Import
+          导入
           <input id="fileInput"
                  type="file"
                  accept=".js"
@@ -21,57 +22,25 @@
         <span class="title"
               style="font-size: 20px"
               @click="exportCode">
-          export
+          导出
         </span>
       </div>
-      <div>
-        <span class="title header-btn"
-              @click="connect">
-          {{ connectStatus ? 'Connected' : 'connect' }}
-        </span>
-        <!-- <span class="title header-btn delete"
-              @click="clearCanvas">
-          clear
-        </span> -->
-        <span class="title header-btn"
-              @click="saveCode">
-          Save
-        </span>
-        <span class="title header-btn"
-              @click="loadCode()">
-          Load
-        </span>
-        <span class="title header-btn run"
-              @click="runCode">
-          {{ !runStatus ? 'Run' : 'Stop' }}
-        </span>
-        <!-- <a-dropdown overlay-class-name="dropdown">
-          <a class="title header-btn"
-             @click.prevent>
-            更多
+      <div class="btn-box">
+        <a-button ghost
+                  @click="connect">
+          {{ connectStatus ? '断开连接' : '连接' }}
+        </a-button>
 
-          </a>
-          <template #overlay>
-            <a-menu>
-              <a-menu-item>
-                <a href="javascript:;"
-                   class="menu-item"
-                   @click="openDocs">帮助文档</a>
-              </a-menu-item>
-              <a-menu-item>
-                <a href="javascript:;"
-                   class="menu-item"
-                   @click="openGameDocs">游戏指南</a>
-              </a-menu-item>
-              <a-menu-item>
-                <a href="javascript:;"
-                   class="menu-item"
-                   style="color: red;"
-                   @click="recoverStatus">Recover</a>
-              </a-menu-item>
-            </a-menu>
-          </template>
-        </a-dropdown> -->
+        <a-button ghost
+                  @click="saveCode">
+          保存
+        </a-button>
+
+        <a-button ghost
+                  type="primary"
+                  @click="runCode">
+          {{ !runStatus ? '运行' : '停止' }}
+        </a-button>
       </div>
     </div>
     <div class="code-box">
@@ -83,6 +52,7 @@
 
 <script lang="ts">
 import * as monaco from 'monaco-editor'
+import { useStore } from 'vuex'
 
 import router from '@/router'
 import {
@@ -99,8 +69,12 @@ import {
 } from 'vue'
 import { blePlayMusic, bleSetLight, bleSetSingleLight, clearAllLight } from '@/api/joyo-ble/index'
 import { bleSetLightAnimation, clearAnimation } from '@/api/joyo-ble/light-animation'
-// import '@/lib/blocks/index'
-import { connectJoyo, bleState } from '@/api/joyo-ble/web-ble-server'
+import { connectJoyo, disconnectJoyo, bleState } from '@/api/joyo-ble/web-ble-server'
+import { projectPrefix } from '@/utils/config'
+import preSet from '@/lib/blockly/blocks/preBlock'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
+import { message } from 'ant-design-vue'
+import PreSetCodeString from '@/utils/js-editor-methods.jo'
 
 // 引入解释器
 // import '@/lib/acorn.js' // todo ts
@@ -111,9 +85,11 @@ const Interpreter = window.Interpreter
 
 declare global {
     interface Window {
+      Babel: any;
       oidChange: any;
       When_JOYO_Read: any;
       lastOID: any;
+
       workspace: any;
       blePlayMusic: any;
       bleSetLight: any;
@@ -134,6 +110,7 @@ export default defineComponent({
     const preserveVar = ['window', 'self', 'print', 'getDateNow', 'sleepFn', 'blePlayMusic', 'bleSetLight', 'clearAllLight', 'bleSetLightAnimation', 'value', 'When_JOYO_Read', 'setUp']
     let codeEditor = null as unknown as (monaco.editor.IStandaloneCodeEditor)
     const state = reactive({
+      enableAlways: true,
       workspace: null,
       connectStatus: false,
       recoverFlag: false,
@@ -144,7 +121,6 @@ export default defineComponent({
       // varInfo: [] as string[],
       varInfo: {} as Record<string, any>,
       varInfoOrigin: {} as Record<string, any>,
-      OIDstatus: [] as number[], // 识别的OID序列
       debugInfo: '',
       sandBoxStepCount: 0,
       sandBoxMaxStep: 8000,
@@ -153,6 +129,9 @@ export default defineComponent({
     })
     let timer = null as any
     const workspace = null as any
+
+    const route = useRoute()
+    const store = useStore()
 
     watch(() => bleState.connectStatus, (val) => {
       state.connectStatus = val
@@ -164,12 +143,16 @@ export default defineComponent({
     })
 
     const navigatorBack = () => {
-      router.back()
+      location.href = ''
     }
 
     const connect = () => {
-      heartBeat()
-      connectJoyo()
+      // heartBeat()
+      if (state.connectStatus) {
+        disconnectJoyo()
+      } else {
+        connectJoyo()
+      }
     }
     const clearCanvas = () => {
       //
@@ -178,11 +161,17 @@ export default defineComponent({
       return codeEditor?.getValue()
     }
 
-    const saveCode = () => {
+    const saveCode = (withoutMessage?: boolean) => {
       // 保存代码
+      format()
       const code = getCode()
-      localStorage.setItem('js-code', code)
-      alert('save success')
+      const uuid = (route.query?.uuid as string) || ''
+      if (uuid) {
+        store.dispatch('updateProject', { uuid, content: code })
+      } else {
+        localStorage.setItem('js-code', code)
+      }
+      !withoutMessage && message.success('保存成功')
     }
 
     const loadCode = (str?: string) => {
@@ -192,12 +181,6 @@ export default defineComponent({
       }
     }
 
-    const importCode = () => {
-      // const code = str || localStorage.getItem('js-code') || ''
-      if (codeEditor) {
-        // codeEditor.setValue(code)
-      }
-    }
     const exportCode = () => {
       const code = getCode()
       download('game.js', code)
@@ -220,36 +203,16 @@ export default defineComponent({
       state.debugInfo = `[${type}]: ` + state.debugInfo + '\n' + str
     }
 
-    // function switchCode (str: string) {
-    //   if (str === 'local') {
-    //     loadCode()
-    //   } else {
-    //     // 先保存本地代码
-    //     if (state.currentState === 'local') {
-    //       const code = getCode()
-    //       localStorage.setItem('js-code', code)
-    //     }
-
-    //     setTimeout(() => {
-    //       loadCode(spyCode)
-    //     }, 100)
-    //   }
-    //   state.currentState = str
-    // }
-
     const handleOIDVal = (num: number) => { // 预先处理下OID码, 将8010 ···值映射到 1···
-      // return Math.round(num / 10) - 800
       return num
     }
 
     // 暂停运行代码
     const stopRun = () => {
-      // runCode
       state.sandBoxStepCount = 0
       state.sandBoxMaxSetupBegin = 0
       clearAnimation()
       clearAllLight()
-      // clearInterval(timer)
       myInterpreter = null
       state.runStatus = false
     }
@@ -264,11 +227,19 @@ export default defineComponent({
         return bleSetLight(JSON.parse(str))
       }
 
+      const _setColor = (color: number | string, num = 12, backColor = 0) => {
+        const arr = Array(num).fill(color).concat(Array(12 - num).fill(backColor))
+        return bleSetLight(({ colors: arr, bright: 1 }))
+      }
+
+      // const _setColor = (color: number | string, num = 12, backColor = 0) => {
+      //   const arr = Array(num).fill(color).concat(Array(12 - num).fill(backColor))
+      //   return bleSetLight(({ colors: arr, bright: 1 }))
+      // }
+
       // 执行内置灯光动画
       const bleSetLightAnimationFn = (type: string, time: number, color: number) => {
-        // console.log(str)
         bleSetLightAnimation(type, time, color)
-        // return
       }
 
       // 清除所有灯光事件
@@ -277,9 +248,6 @@ export default defineComponent({
         return clearAllLight()
       }
 
-      // var wrapper = function alert (text: string) {
-      //   return window.alert(arguments.length ? text : '')
-      // }
       var wrapper = function print () {
         debugLog(arguments[0], 'log')
         return console.log(...arguments)
@@ -287,26 +255,29 @@ export default defineComponent({
       var wrapperDate = function getDateNow () {
         return Date.now()
       }
-      interpreter.setProperty(globalObject, 'print',
+      interpreter.setProperty(globalObject, '_print',
         interpreter.createNativeFunction(wrapper))
 
-      interpreter.setProperty(globalObject, 'getDateNow',
+      interpreter.setProperty(globalObject, '_getDateNow',
         interpreter.createNativeFunction(wrapperDate))
 
-      interpreter.setProperty(globalObject, 'sleepFn',
+      interpreter.setProperty(globalObject, '_sleepFn',
         interpreter.createNativeFunction(sleepFn))
 
-      interpreter.setProperty(globalObject, 'blePlayMusic',
+      interpreter.setProperty(globalObject, '_playMusic',
         interpreter.createNativeFunction(blePlayMusic))
 
       interpreter.setProperty(globalObject, 'bleSetLight',
         interpreter.createNativeFunction(bleSetLightFn))
 
-      interpreter.setProperty(globalObject, 'clearAllLight',
+      interpreter.setProperty(globalObject, '_setColor',
+        interpreter.createNativeFunction(_setColor))
+
+      interpreter.setProperty(globalObject, '_clearAllLight',
         interpreter.createNativeFunction(clearAllLightFn))
 
-      interpreter.setProperty(globalObject, 'bleSetLightAnimation',
-        interpreter.createNativeFunction(bleSetLightAnimationFn))
+      // interpreter.setProperty(globalObject, 'bleSetLightAnimation',
+      //   interpreter.createNativeFunction(bleSetLightAnimationFn))
     }
 
     function runButton () {
@@ -321,26 +292,8 @@ export default defineComponent({
       })
     }
 
-    // function saveStatus () { // 保存当前数据快照，在识别OID前触发
-    //   // localStorage.setItem('state', JSON.stringify(state.varInfoOrigin))
-    //   // localStorage.setItem('lastOID', window.lastOID)
-    // }
-
-    function pushOIDStatus (val: number) { // 第二种识别方式，记录每一个OID的操作序列，恢复时候依次执行
-      state.OIDstatus.push(val)
-      localStorage.setItem('OIDstatus', JSON.stringify(state.OIDstatus))
-    }
-
     function sleep (ms: number) {
       return new Promise(resolve => setTimeout(resolve, ms))
-    }
-
-    async function recoverStatus () { // 根据oid status 重置当前快照
-      if (!bleState.connectStatus) {
-        alert('JOYO未连接')
-        return
-      }
-      state.recoverFlag = true
     }
 
     function handleInterpreterOIDEvt (val: number) {
@@ -362,10 +315,6 @@ export default defineComponent({
           }
         }
       }
-    }
-
-    function triggerLastOID () { // 触发最后一次OID信号
-      //
     }
 
     function nextStep () {
@@ -396,22 +345,29 @@ export default defineComponent({
       clearInterval(timer)
     }
 
+    function handleCode (code: string) {
+      // 转成bable
+      const result = window.Babel.transform(PreSetCodeString + code, { presets: ['es2015'] }).code
+      console.log(result)
+      return result
+    }
+
     const runCode = async () => {
       if (state.runStatus) {
         stopRun()
         return
       }
+      saveCode(true)
       state.varInfo = {}
-      // state.varInfoOrigin = {}
       window.lastOID = -1
-      state.OIDstatus = []
       state.debugInfo = ''
 
       if (!bleState.connectStatus) {
         debugLog('JOYO未连接', 'system')
       }
       if (codeEditor) {
-        const code = getCode()
+        // const code = Babel.transform(getCode(), { presets: ['es2015'] }).code
+        const code = handleCode(getCode())
         try {
           // 新建一个解释器
           myInterpreter = new Interpreter(code, initFunc)
@@ -436,8 +392,6 @@ export default defineComponent({
 
           const reader = new FileReader()
           reader.onload = function fileReadCompleted () {
-          // 当读取完成时，内容只在`reader.result`中
-            // console.log(reader.result)
             try {
               loadCode(reader.result as string)
             } catch (err) {
@@ -449,6 +403,58 @@ export default defineComponent({
       }
     }
 
+    function getContentByUUID (uuid = '') { // 获取程序内容
+      const content = localStorage.getItem(`${projectPrefix}-${uuid}`) || preSet.runSample
+      try {
+        loadCode(content)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    function format () {
+      (codeEditor as any).getAction(['editor.action.formatDocument'])._run()
+    }
+
+    function copyLine () {
+      const model = codeEditor.getModel()
+      if (model) {
+        const lineNumber = codeEditor.getPosition()?.lineNumber as number
+        const lineText = model.getLineContent(lineNumber || 0)
+        console.log(lineText)
+        model.pushEditOperations(
+          [],
+          [
+            {
+              range: new monaco.Range(lineNumber + 1, 1, lineNumber + 1, 1),
+              text: lineText + '\n',
+            },
+          ],
+          null as any,
+        )
+      }
+    }
+
+    // 路由守卫
+    onBeforeRouteLeave(() => {
+      const uuid = route.query?.uuid as string
+      try {
+        const code = getCode()
+        if (uuid) {
+          const content = localStorage.getItem(`${projectPrefix}-${uuid}`)
+          if (content !== code) {
+            if (window.confirm('当前程序未保存，确认离开？')) {
+              return true
+            }
+            return false
+          }
+        }
+      } catch (err) {
+        console.log(err)
+      }
+      return true
+    })
+
     onUnmounted(() => {
       //
     })
@@ -456,6 +462,61 @@ export default defineComponent({
     onMounted(() => {
       const box = document.getElementById('container')
       if (box) {
+        // monaco.languages.typescript.javascriptDefaults.addExtraLib(
+        //   '/index.d.ts',
+        // )
+        monaco.languages.registerCompletionItemProvider('javascript', {
+          provideCompletionItems (model, position) {
+            return {
+              suggestions: [
+                {
+                  label: '_print', // 显示的提示内容
+                  kind: monaco.languages.CompletionItemKind.Function, // 用来显示提示内容后的不同的图标
+                  insertText: '_print()', // 选择后粘贴到编辑器中的文字
+                  detail: '打印信息', // 提示内容后的说明
+                },
+                {
+                  label: '_getDateNow', // 显示的提示内容
+                  kind: monaco.languages.CompletionItemKind.Function, // 用来显示提示内容后的不同的图标
+                  insertText: '_getDateNow()', // 选择后粘贴到编辑器中的文字
+                  detail: '获取当前日期', // 提示内容后的说明
+                },
+                {
+                  label: '_sleepFn', // 显示的提示内容
+                  kind: monaco.languages.CompletionItemKind.Function, // 用来显示提示内容后的不同的图标
+                  insertText: '_sleepFn(1)', // 选择后粘贴到编辑器中的文字
+                  detail: '等待1秒', // 提示内容后的说明
+                },
+                {
+                  label: '_playMusic', // 显示的提示内容
+                  kind: monaco.languages.CompletionItemKind.Function, // 用来显示提示内容后的不同的图标
+                  insertText: '_playMusic(Music.WIN)', // 选择后粘贴到编辑器中的文字
+                  detail: '播放音效', // 提示内容后的说明
+                },
+                {
+                  label: '_setColor', // 显示的提示内容
+                  kind: monaco.languages.CompletionItemKind.Function, // 用来显示提示内容后的不同的图标
+                  insertText: '_setColor(Color.WHITE)', // 选择后粘贴到编辑器中的文字
+                  detail: '用单一颜色设置灯光', // 提示内容后的说明
+                },
+                {
+                  label: '_setLight', // 显示的提示内容
+                  kind: monaco.languages.CompletionItemKind.Function, // 用来显示提示内容后的不同的图标
+                  insertText: '_setLight([Color.WHITE])', // 选择后粘贴到编辑器中的文字
+                  detail: '用一个数组设置灯光，不满8个的会不亮灯', // 提示内容后的说明
+                },
+                {
+                  label: '_clearAllLight', // 显示的提示内容
+                  kind: monaco.languages.CompletionItemKind.Function, // 用来显示提示内容后的不同的图标
+                  insertText: '_clearAllLight()', // 清除所有灯光
+                  detail: ' 清除所有灯光', // 提示内容后的说明
+                },
+
+              ],
+            } as any
+          },
+          // triggerCharacters: ['_'], // 触发提示的字符，可以写多个
+        })
         codeEditor = markRaw(monaco.editor.create(document.getElementById('container') as HTMLElement, {
           value: ['function x() {', '\tconsole.log("Hello world!");', '}'].join('\n'),
           language: 'javascript',
@@ -465,8 +526,8 @@ export default defineComponent({
       }
 
       initFileEvt()
+      getContentByUUID(route.query?.uuid as string)
 
-      state.OIDstatus = JSON.parse(localStorage.getItem('OIDstatus') || '[]')
       window.workspace = workspace
       window.lastOID = -1;
 
@@ -475,14 +536,25 @@ export default defineComponent({
           if (myInterpreter && myInterpreter.appendCode) {
             const val = handleOIDVal(msg[10] * 256 * 256 * 256 + msg[9] * 256 * 256 + msg[8] * 256 + msg[7])
             // 限定 1 到 54
-            // if (val > 0 && val < 55 && val !== window.lastOID) { // todo: 通用码
-            if (val !== window.lastOID) { // todo: 通用码
+            if (val !== window.lastOID || state.enableAlways) { // todo: 通用码
               window.lastOID = val
               handleInterpreterOIDEvt(val)
             }
           }
         }
       }
+
+      // 屏蔽网页保存，改为代码保存
+      window.addEventListener('keydown', function (e) {
+        if (e.key === 's' && ((/macintosh|mac os x/i.test(navigator.userAgent)) ? e.metaKey : e.ctrlKey)) {
+          e.preventDefault()
+          saveCode()
+        }
+        if (e.key === 'h' && ((/macintosh|mac os x/i.test(navigator.userAgent)) ? e.metaKey : e.ctrlKey)) {
+          e.preventDefault()
+          copyLine()
+        }
+      })
     })
 
     return {
@@ -492,12 +564,8 @@ export default defineComponent({
       saveCode,
       clearCanvas,
       connect,
-      loadCode,
       navigatorBack,
-      importCode,
       exportCode,
-      // switchCode,
-      recoverStatus,
 
     }
   },
@@ -522,54 +590,35 @@ export default defineComponent({
 }
 .header {
   width: 100%;
-  height: 88px;
+  height: 60px;
   background-color: #232528;
   display: flex;
   justify-content: space-between;
-  padding: 13px 17px 10px;
+  // padding: 13px 17px 10px;
   span {
     display: inline-block;
-  }
-  .back {
-    height: 66px;
-    padding: 0 12px;
-    background: #6c6c6c;
-    color: #fff;
-    border-radius: 10px;
-    font-weight: bold;
-    font-size: 30px;
-    line-height: 65px;
   }
   .title {
     font-weight: bold;
     font-size: 30px;
     color: #fff;
-    height: 65px;
-    line-height: 65px;
+    height: 60px;
+    line-height: 60px;
     margin-right: 20px;
     cursor: pointer;
     &.active {
       font-size: 24px !important;
     }
   }
-  .header-btn {
-    background-color: #497cff;
-    border-radius: 5px;
-    padding: 0 10px;
-    height: 65px;
-    display: inline-block;
-    box-sizing: border-box;
-
-    &.delete {
-      background-color: red;
-    }
-    &.run {
-      background-color: #02ebae;
-    }
-    &:active {
-      opacity: 0.7;
+  .btn-box {
+    height: 100%;
+    vertical-align: middle;
+    line-height: 60px;
+    .ant-btn {
+      margin-right: 10px;
     }
   }
+
 }
 .dropdown {
   .menu-item {

@@ -183,6 +183,8 @@ import { playPreviewMusic } from '@/lib/blockly/blocks/audio'
 import { initBlocklyStore } from '@/lib/blockly/blockly-use-vuex/index'
 import { useStore } from 'vuex'
 
+import { projectPrefix } from '@/utils/config'
+
 // 引入解释器
 // import '@/lib/acorn.js' // todo ts
 // import '@/lib/interpreter.js' // todo ts
@@ -538,7 +540,7 @@ export default defineComponent({
     }
 
     function getContentByUUID (uuid = '') {
-      const content = localStorage.getItem(`block-${uuid}`) || preSet.runSample
+      const content = localStorage.getItem(`${projectPrefix}-${uuid}`) || preSet.runSample
       try {
         // 加载json
         const json = JSON.parse(content)
@@ -584,7 +586,7 @@ export default defineComponent({
         const json = Blockly.serialization.workspaces.save(workspace)
         json.ruleBook = state.ruleBook
         if (uuid) {
-          const content = localStorage.getItem(`block-${uuid}`)
+          const content = localStorage.getItem(`${projectPrefix}-${uuid}`)
           if (content !== JSON.stringify(json)) {
             if (window.confirm('当前程序未保存，确认离开？')) {
               return true

@@ -1,0 +1,4 @@
+function _setLight (colors, backColor = 0) {
+  const arr =colors.concat(new Array(12 - colors.length).join("a").split("").map(a=>backColor))
+  bleSetLight(JSON.stringify({ colors: arr, bright: 1 }))
+}

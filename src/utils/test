@@ -1,0 +1,82 @@
+"use strict";
+
+var Color = {
+  RED: "0xFF0000",
+  ORANGE: "0xFF8C00",
+  YELLOW: "0xFFFF00",
+  GREEN: "0x00FF00",
+  BLUE: "0x0000FF",
+  PURPLE: "0x510099",
+  PINK: "0xFF0a27",
+  WHITE: "0xFFFFFF",
+};
+var Music = {
+  WIN: "gwin",
+  WRONG: "olwh",
+  BEGIN: "gbeg",
+  BEGIN2: "stat",
+  COUNT_DOWN: "tend",
+  COUNT_LAST: "tala",
+  MOVE_1: "mov1",
+  MOVE_2: "mov2",
+  MOVE_3: "mov3",
+  MOVE_4: "mov4",
+  MOVE_5: "mov5",
+  MATCH_1: "mat1",
+  MATCH_2: "mat2",
+  MATCH_3: "mat3",
+  MATCH_4: "mat4",
+  MATCH_5: "mat5",
+  FIND_TARGET: "fhed",
+  FIND_NOTHING: "fnon",
+  FIND_CHECK: "chek",
+  DO: "01do",
+  RE: "02re",
+  MI: "03mi",
+  FA: "04fa",
+  SO: "05so",
+  LA: "06la",
+  XI: "07xi",
+};
+function _setLight(colors) {
+  var backColor =
+    arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  var arr = colors.concat(Array(12 - colors.length).fill(backColor));
+  bleSetLight(
+    JSON.stringify({
+      colors: arr,
+      bright: 1,
+    })
+  );
+}
+function _setColor(color) {
+  var num =
+    arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 12;
+  var backColor =
+    arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+  // 用x颜色点亮num颗灯
+  var arr = Array(num)
+    .fill(color)
+    .concat(Array(12 - num).fill(backColor));
+  bleSetLight(
+    JSON.stringify({
+      colors: arr,
+      bright: 1,
+    })
+  );
+}
+function _playMusic(music) {
+  blePlayMusic(music);
+}
+// function setLight ([]) {
+// 	bleSetLight(JSON.stringify({colors: ["#ffffff"]}))
+// }
+var fn = function fn() {
+  _setColor(Color.RED);
+  // bleSetLight(JSON.stringify({colors: ["#ffffff"]}))
+};
+
+fn();
+function When_JOYO_Read() {
+  blePlayMusic("gwin");
+}
