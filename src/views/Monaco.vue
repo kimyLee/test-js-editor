@@ -38,6 +38,11 @@
 
         <a-button ghost
                   type="primary"
+                  @click="toggleLoop">
+          {{ !loopStatus ? '开启Loop' : '停止Loop' }}
+        </a-button>
+        <a-button ghost
+                  type="primary"
                   @click="runCode">
           {{ !runStatus ? '运行' : '停止' }}
         </a-button>
@@ -115,6 +120,8 @@ export default defineComponent({
       connectStatus: false,
       recoverFlag: false,
       runStatus: false,
+      loopStatus: false,
+      loopTimer: null as any,
       currentState: 'local',
       visible: false,
       gameVisible: false,
@@ -296,6 +303,23 @@ export default defineComponent({
       return new Promise(resolve => setTimeout(resolve, ms))
     }
 
+    function toggleLoop () {
+      if (!state.loopStatus) {
+        state.loopStatus = true
+        clearInterval(state.loopTimer)
+        state.loopTimer = setInterval(() => {
+          if (myInterpreter && myInterpreter?.appendCode) {
+            myInterpreter.appendCode('_loop()')
+            // nextStep()
+            myInterpreter.run()
+          }
+        }, 100)
+      } else {
+        state.loopStatus = false
+        clearInterval(state.loopTimer)
+      }
+    }
+
     function handleInterpreterOIDEvt (val: number) {
       state.sandBoxStepCount = 0
       if (myInterpreter && myInterpreter?.appendCode) {
@@ -303,17 +327,17 @@ export default defineComponent({
         // nextStep()
         myInterpreter.run()
         // 获取参数状态
-        const obj = myInterpreter.globalObject.properties
-        const vars = getVariables(Object.keys(obj), obj)
-        for (let i = 0; i < vars.length; i++) {
-          const e = vars[i]
-          // state.varInfoOrigin = obj[e]
-          if (typeof obj[e] === 'object') {
-            state.varInfo[e] = (obj[e]?.properties)
-          } else {
-            state.varInfo[e] = obj[e]
-          }
-        }
+        // const obj = myInterpreter.globalObject.properties
+        // const vars = getVariables(Object.keys(obj), obj)
+        // for (let i = 0; i < vars.length; i++) {
+        //   const e = vars[i]
+        //   // state.varInfoOrigin = obj[e]
+        //   if (typeof obj[e] === 'object') {
+        //     state.varInfo[e] = (obj[e]?.properties)
+        //   } else {
+        //     state.varInfo[e] = obj[e]
+        //   }
+        // }
       }
     }
 
@@ -559,6 +583,7 @@ export default defineComponent({
 
     return {
       // testColorCode,
+      toggleLoop,
       ...toRefs(state),
       runCode,
       saveCode,
